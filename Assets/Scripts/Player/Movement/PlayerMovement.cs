@@ -19,10 +19,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpAmt = 5f;
     [SerializeField] private float multiplier = 2f;
-
+    
+    public float stamina = 100f;
+    private float staminaCost = 30f;
     private bool isGrounded;
-    private bool isSprinting;
-    private bool hasStamina = true;
+    public bool isSprinting;
     private Rigidbody rb;
     private Camera cam;
 
@@ -63,6 +64,7 @@ public class PlayerMovement : MonoBehaviour
         float sprintMult = isSprinting ? multiplier: 1f;
         moveAmt = move.ReadValue<Vector2>(); 
         rb.position +=  ((moveAmt.y * cam.transform.forward) + (moveAmt.x * cam.transform.right)).normalized * moveSpeed * sprintMult * Time.deltaTime;
+        StaminaRecovery();
     }
     private void PlayerJump(InputAction.CallbackContext context)
     {
@@ -79,20 +81,26 @@ public class PlayerMovement : MonoBehaviour
     private void OnCollisionExit(Collision collision){isGrounded = false;}
     private void Sprint(InputAction.CallbackContext ctx)
     {
-        if(hasStamina){
         isSprinting = ctx.performed;
-        StartCoroutine(SprintDuration());
-        }
+        StaminaUse();
     }
 
-    private IEnumerator SprintDuration()
+    private void StaminaUse()
     {
-        if (isSprinting && hasStamina)
+        if (isSprinting && stamina > 0)
         {
-            yield return new WaitForSeconds(4);
-            isSprinting = false;
-            hasStamina = false;
+            stamina -= staminaCost;
         }
+        if(stamina < 0){stamina = 0;}
+
     }
-    
+
+    private void StaminaRecovery()
+    {
+        if (!isSprinting && stamina < 100)
+        {
+            stamina += 10 * Time.deltaTime;
+        }
+        if(stamina > 100){stamina = 100;}
+    }
 }
