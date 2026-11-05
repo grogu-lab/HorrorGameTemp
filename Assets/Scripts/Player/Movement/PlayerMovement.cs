@@ -1,6 +1,8 @@
+using System.Collections;
 using System.ComponentModel;
 using System.Security.Cryptography;
 using NUnit.Framework;
+using UnityEditor.Callbacks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -20,6 +22,7 @@ public class PlayerMovement : MonoBehaviour
 
     private bool isGrounded;
     private bool isSprinting;
+    private bool hasStamina = true;
     private Rigidbody rb;
     private Camera cam;
 
@@ -52,6 +55,7 @@ public class PlayerMovement : MonoBehaviour
     private void Start()
     {
         cam = GetComponentInChildren<Camera>();
+        
     }
 
     private void FixedUpdate()
@@ -73,6 +77,22 @@ public class PlayerMovement : MonoBehaviour
         }
     }
     private void OnCollisionExit(Collision collision){isGrounded = false;}
-    private void Sprint(InputAction.CallbackContext ctx){isSprinting = ctx.performed;}
+    private void Sprint(InputAction.CallbackContext ctx)
+    {
+        if(hasStamina){
+        isSprinting = ctx.performed;
+        StartCoroutine(SprintDuration());
+        }
+    }
+
+    private IEnumerator SprintDuration()
+    {
+        if (isSprinting && hasStamina)
+        {
+            yield return new WaitForSeconds(4);
+            isSprinting = false;
+            hasStamina = false;
+        }
+    }
     
 }
