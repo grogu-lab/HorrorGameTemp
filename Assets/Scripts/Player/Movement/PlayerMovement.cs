@@ -1,8 +1,3 @@
-using System.Collections;
-using System.ComponentModel;
-using System.Security.Cryptography;
-using NUnit.Framework;
-using UnityEditor.Callbacks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -64,7 +59,7 @@ public class PlayerMovement : MonoBehaviour
         float sprintMult = isSprinting ? multiplier: 1f;
         moveAmt = move.ReadValue<Vector2>(); 
         rb.position +=  ((moveAmt.y * cam.transform.forward) + (moveAmt.x * cam.transform.right)).normalized * moveSpeed * sprintMult * Time.deltaTime;
-        StaminaRecovery();
+        
     }
     private void PlayerJump(InputAction.CallbackContext context)
     {
@@ -81,26 +76,8 @@ public class PlayerMovement : MonoBehaviour
     private void OnCollisionExit(Collision collision){isGrounded = false;}
     private void Sprint(InputAction.CallbackContext ctx)
     {
-        isSprinting = ctx.performed;
-        StaminaUse();
+        isSprinting = ctx.performed && stamina > 0;
     }
 
-    private void StaminaUse()
-    {
-        if (isSprinting && stamina > 0)
-        {
-            stamina -= staminaCost;
-        }
-        if(stamina < 0){stamina = 0;}
-
-    }
-
-    private void StaminaRecovery()
-    {
-        if (!isSprinting && stamina < 100)
-        {
-            stamina += 10 * Time.deltaTime;
-        }
-        if(stamina > 100){stamina = 100;}
-    }
+   
 }
